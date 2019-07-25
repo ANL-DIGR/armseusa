@@ -16,23 +16,26 @@ def get_month(radar, year, month, odir):
         scans = conn.get_avail_scans(year, month, day, radar)
         localfiles = conn.download(scans, templocation)
         # loop thought files and determine destination
-        for downloaded_file in localfiles.success:
-            infile = downloaded_file.filepath
-            # os.path.join(downloaded_file.filepath,
-            #                      downloaded_file.filename)
-            print(downloaded_file.filepath)
-            outpath = os.path.join(odir,
-                                   radar,
-                                   downloaded_file.scan_time.strftime('%Y/%m/%d/'))
-            try:
-                os.makedirs(outpath)
-            except FileExistsError:
-                pass  # directory exists
+        try:
+            for downloaded_file in localfiles.success:
+                infile = downloaded_file.filepath
+                # os.path.join(downloaded_file.filepath,
+                #                      downloaded_file.filename)
+                print(downloaded_file.filepath)
+                outpath = os.path.join(odir,
+                                       radar,
+                                       downloaded_file.scan_time.strftime('%Y/%m/%d/'))
+                try:
+                    os.makedirs(outpath)
+                except FileExistsError:
+                    pass  # directory exists
 
-            # move to destination
-            print(os.path.join(outpath, downloaded_file.filename))
-            shutil.move(infile, os.path.join(outpath, downloaded_file.filename))
-            fls.append(outpath)
+                # move to destination
+                print(os.path.join(outpath, downloaded_file.filename))
+                shutil.move(infile, os.path.join(outpath, downloaded_file.filename))
+                fls.append(outpath)
+        except TypeError: #catching the case when no files that day
+            fls.append("NO data on " + day)
 
     return fls
 
